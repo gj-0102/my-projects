@@ -17,23 +17,23 @@ interface Order {
   deliveryAddress: string;
   createdAt: string;
   items: OrderItem[];
-  restaurant: { address: string };
+  restaurantAddress: string;
 }
 
 export const orderModel = {
   getAll: () => {
-    const orders = db.prepare('SELECT * FROM orders').all() as Omit<Order, 'items' | 'restaurant'>[];
+    const orders = db.prepare('SELECT * FROM orders').all() as Omit<Order, 'items'>[];
     return orders.map(order => {
       const items = db.prepare('SELECT * FROM order_items WHERE orderId = ?').all(order.id) as OrderItem[];
-      return { ...order, items, restaurant: { address: order.deliveryAddress.split(',')[0] } } as Order;
+      return { ...order, items} as Order;
     });
   },
 
   getById: (id: string) => {
-    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id) as Omit<Order, 'items' | 'restaurant'> | undefined;
+    const order = db.prepare('SELECT * FROM orders WHERE id = ?').get(id) as Omit<Order, 'items'> | undefined;
     if (!order) return null;
     const items = db.prepare('SELECT * FROM order_items WHERE orderId = ?').all(id) as OrderItem[];
-    return { ...order, items, restaurant: { address: order.deliveryAddress.split(',')[0] } } as Order;
+    return { ...order, items } as Order;
   },
 
   updateStatus: (id: string, status: string) => {
