@@ -3,7 +3,6 @@ import { join } from 'path';
 
 const db = new Database(join(process.cwd(), 'data.db'));
 
-// 创建表
 db.exec(`
   CREATE TABLE IF NOT EXISTS orders (
     id TEXT PRIMARY KEY,
@@ -12,6 +11,7 @@ db.exec(`
     status TEXT NOT NULL,
     estimatedDeliveryTime TEXT NOT NULL,
     deliveryAddress TEXT NOT NULL,
+    restaurantAddress TEXT NOT NULL,
     createdAt TEXT NOT NULL
   );
 
@@ -25,7 +25,6 @@ db.exec(`
   );
 `);
 
-// 检查订单表是否为空，如果为空则插入默认数据
 const orderCount = (db.prepare('SELECT COUNT(*) as count FROM orders').get() as { count: number }).count;
 if (orderCount === 0) {
   const orders = [
@@ -76,8 +75,8 @@ if (orderCount === 0) {
   ];
 
   const insertOrder = db.prepare(`
-    INSERT INTO orders (id, customerName, totalPrice, status, estimatedDeliveryTime, deliveryAddress, createdAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO orders (id, customerName, totalPrice, status, estimatedDeliveryTime, deliveryAddress, restaurantAddress, createdAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertOrderItem = db.prepare(`
@@ -93,6 +92,7 @@ if (orderCount === 0) {
       order.status,
       order.estimatedDeliveryTime,
       order.deliveryAddress,
+      order.restaurantAddress,
       order.createdAt
     );
 
